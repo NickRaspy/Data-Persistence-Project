@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
@@ -9,19 +10,28 @@ public class MainManager : MonoBehaviour
     public Brick BrickPrefab;
     public int LineCount = 6;
     public Rigidbody Ball;
+    public GameObject brickHolder;
 
     public Text ScoreText;
+    public Text HighScoreText;
     public GameObject GameOverText;
+    public GameObject pauseUI;
+    public AudioSource soundMaker;
     
     private bool m_Started = false;
-    private int m_Points;
+    private bool m_Paused = false;
+    public int m_Points;
+    public int m_BestScore = 0;
+    public string m_Name;
     
     private bool m_GameOver = false;
 
-    
+    public DataManager dataManager;
     // Start is called before the first frame update
     void Start()
     {
+        dataManager = GameObject.Find("DataManager").GetComponent<DataManager>();
+        HighScoreText.text = "Best Score: " + dataManager.d_Name + ": " + dataManager.d_BestScore;
         const float step = 0.6f;
         int perLine = Mathf.FloorToInt(4.0f / step);
         
@@ -32,8 +42,10 @@ public class MainManager : MonoBehaviour
             {
                 Vector3 position = new Vector3(-1.5f + step * x, 2.5f + i * 0.3f, 0);
                 var brick = Instantiate(BrickPrefab, position, Quaternion.identity);
+                brick.transform.SetParent(brickHolder.transform);
                 brick.PointValue = pointCountArray[i];
                 brick.onDestroyed.AddListener(AddPoint);
+                brick.playSound.AddListener(PlaySound);
             }
         }
     }
@@ -57,8 +69,29 @@ public class MainManager : MonoBehaviour
         {
             if (Input.GetKeyDown(KeyCode.Space))
             {
-                SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+                SceneManager.LoadSceneAsync(SceneManager.GetActiveScene().buildIndex);
             }
+            else if (Input.GetKeyDown(KeyCode.Escape))
+            {
+                SceneManager.LoadSceneAsync("menu");
+            }
+        }
+        else if (!m_GameOver)
+        {
+            if (Input.GetKeyDown(KeyCode.Escape))
+            {
+                m_Paused = !m_Paused;
+            }
+        }
+        if (m_Paused)
+        {
+            Time.timeScale = 0f;
+            pauseUI.SetActive(true);
+        }
+        else
+        {
+            Time.timeScale = 1f;
+            pauseUI.SetActive(false);
         }
     }
 
@@ -67,10 +100,25 @@ public class MainManager : MonoBehaviour
         m_Points += point;
         ScoreText.text = $"Score : {m_Points}";
     }
+    void PlaySound()
+    {
+        soundMaker.Play();
+    }
 
     public void GameOver()
     {
         m_GameOver = true;
+        if (m_Points > dataManager.d_BestScore) { dataManager.d_BestScore = m_Points;  dataManager.d_Name = dataManager.d_NewName; }
+        dataManager.SaveData();
+        HighScoreText.text = "Best Score: " + dataManager.d_Name + ": " + dataManager.d_BestScore;
         GameOverText.SetActive(true);
+    }
+    public void Continue()
+    {
+        m_Paused = !m_Paused;
+    }
+    public void ExitToMenu()
+    {
+        SceneManager.LoadSceneAsync("menu");
     }
 }

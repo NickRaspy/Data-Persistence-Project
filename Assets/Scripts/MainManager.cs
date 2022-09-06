@@ -22,11 +22,14 @@ public class MainManager : MonoBehaviour
     private bool m_Paused = false;
     public int m_Points;
     public int m_BestScore = 0;
+    public float m_gameSpeed;
     
     private bool m_GameOver = false;
     // Start is called before the first frame update
     void Start()
     {
+        m_gameSpeed = DataManager.Instance.settingsData.gameSpeed;
+        Time.timeScale = m_gameSpeed;
         HighScoreText.text = "Best Score: " + DataManager.Instance.d_BestName + ": " + DataManager.Instance.d_BestScore;
         const float step = 0.6f;
         int perLine = Mathf.FloorToInt(4.0f / step);
@@ -83,7 +86,7 @@ public class MainManager : MonoBehaviour
         }
         else
         {
-            Time.timeScale = 1f;
+            Time.timeScale = m_gameSpeed;
             pauseUI.SetActive(false);
         }
     }

@@ -198,10 +198,10 @@ public class DataManager : MonoBehaviour
     {
         Settings settings = new Settings
         {
-            ScreenX = Screen.currentResolution.width,
-            ScreenY = Screen.currentResolution.height,
-            FullScreenMode = Screen.fullScreenMode,
-            refreshRate = Screen.currentResolution.refreshRate,
+            ScreenX = Display.main.systemWidth,
+            ScreenY = Display.main.systemHeight,
+            FullScreenMode = FullScreenMode.Windowed,
+            refreshRate = 60,
             gameSpeed = 1f
         };
         string json = JsonUtility.ToJson(settings);

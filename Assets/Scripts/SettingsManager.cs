@@ -27,6 +27,7 @@ public class SettingsManager : MonoBehaviour
     public int x; public int y; public FullScreenMode fsm; public int refresh; public float gameSpeed;
     void Start()
     {
+        DataManager.Instance.LoadSettings();
         SettingsData settingsData = DataManager.Instance.settingsData;
         for (int i = 0; i < resolutions.Count; i++)
         {
@@ -139,6 +140,7 @@ public class SettingsManager : MonoBehaviour
     public void Default()
     {
         DataManager.Instance.DefaultSettings();
+        SceneManager.LoadScene(SceneManager.GetActiveScene().name);
     }
 }
 

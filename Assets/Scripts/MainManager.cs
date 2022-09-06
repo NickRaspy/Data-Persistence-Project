@@ -22,16 +22,12 @@ public class MainManager : MonoBehaviour
     private bool m_Paused = false;
     public int m_Points;
     public int m_BestScore = 0;
-    public string m_Name;
     
     private bool m_GameOver = false;
-
-    public DataManager dataManager;
     // Start is called before the first frame update
     void Start()
     {
-        dataManager = GameObject.Find("DataManager").GetComponent<DataManager>();
-        HighScoreText.text = "Best Score: " + dataManager.d_Name + ": " + dataManager.d_BestScore;
+        HighScoreText.text = "Best Score: " + DataManager.Instance.d_BestName + ": " + DataManager.Instance.d_BestScore;
         const float step = 0.6f;
         int perLine = Mathf.FloorToInt(4.0f / step);
         
@@ -54,6 +50,10 @@ public class MainManager : MonoBehaviour
     {
         if (!m_Started)
         {
+            if (Input.GetKeyDown(KeyCode.Escape))
+            {
+                m_Paused = !m_Paused;
+            }
             if (Input.GetKeyDown(KeyCode.Space))
             {
                 m_Started = true;
@@ -74,13 +74,6 @@ public class MainManager : MonoBehaviour
             else if (Input.GetKeyDown(KeyCode.Escape))
             {
                 SceneManager.LoadSceneAsync("menu");
-            }
-        }
-        else if (!m_GameOver)
-        {
-            if (Input.GetKeyDown(KeyCode.Escape))
-            {
-                m_Paused = !m_Paused;
             }
         }
         if (m_Paused)
@@ -108,9 +101,10 @@ public class MainManager : MonoBehaviour
     public void GameOver()
     {
         m_GameOver = true;
-        if (m_Points > dataManager.d_BestScore) { dataManager.d_BestScore = m_Points;  dataManager.d_Name = dataManager.d_NewName; }
-        dataManager.SaveData();
-        HighScoreText.text = "Best Score: " + dataManager.d_Name + ": " + dataManager.d_BestScore;
+        DataManager.Instance.d_Score = m_Points;
+        DataManager.Instance.SaveData();
+        DataManager.Instance.LoadData();
+        HighScoreText.text = "Best Score: " + DataManager.Instance.d_BestName + ": " + DataManager.Instance.d_BestScore;
         GameOverText.SetActive(true);
     }
     public void Continue()
